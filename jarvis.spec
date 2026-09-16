@@ -6,10 +6,11 @@ from PyInstaller.utils.hooks import collect_all
 ROOT = Path(SPECPATH)
 icon = ROOT / "assets" / "jarvis.ico"
 
-datas = [
-    (str(ROOT / "config.yaml"), "."),
-    (str(ROOT / ".env.example"), "."),
-]
+datas = []
+for filename in ("config.yaml", ".env.example"):
+    source = ROOT / filename
+    if source.exists():
+        datas.append((str(source), "."))
 if icon.exists():
     datas.append((str(icon), "assets"))
 png = ROOT / "assets" / "jarvis.png"
