@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 from pathlib import Path
+import sys
 
 from PyInstaller.utils.hooks import collect_all
 
@@ -18,6 +19,14 @@ if png.exists():
     datas.append((str(png), "assets"))
 
 binaries = []
+# Python 3.11 dipende dal runtime Microsoft Visual C++. PyInstaller può non
+# raccoglierlo quando si compila su GitHub Actions: includerlo rende il pacchetto
+# portabile anche sui PC dove il redistributable non è già installato.
+PYTHON_DIR = Path(sys.base_prefix)
+for runtime in ("vcruntime140.dll", "vcruntime140_1.dll"):
+    source = PYTHON_DIR / runtime
+    if source.exists():
+        binaries.append((str(source), "."))
 hiddenimports = [
     "sounddevice",
     "soundfile",
