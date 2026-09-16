@@ -1,0 +1,57 @@
+name: Build Windows app
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-build.txt
+
+      - name: Create icon
+        run: python scripts/make_icon.py
+
+      - name: Build with PyInstaller
+        run: python -m PyInstaller jarvis.spec --noconfirm --clean
+
+      - name: Stage portable app
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Copy-Item -Recurse dist/Jarvis release/Jarvis
+          Copy-Item .env.example release/Jarvis/.env.example
+          if (Test-Path README.md) { Copy-Item README.md release/Jarvis/README.md }
+          Compress-Archive -Path release/Jarvis -DestinationPath Jarvis-windows.zip -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Jarvis-windows
+          path: Jarvis-windows.zip
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Jarvis-windows.zip
+          generate_release_notes: true
