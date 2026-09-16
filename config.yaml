@@ -1,0 +1,38 @@
+wake_words:
+  - ehy jarvis
+  - ehi jarvis
+  - hey jarvis
+  - ei jarvis
+  - ahi jarvis
+  - ok jarvis
+  - jarvis
+
+backend: gemini
+
+gemini:
+  model: gemini-2.5-flash
+
+lmstudio:
+  base_url: http://127.0.0.1:1234/v1
+  model: ""
+
+audio:
+  # "default" usa il microfono predefinito di Windows. Nell'app puoi sceglierne un altro.
+  input_device: default
+  sample_rate: 16000
+  language: it
+  whisper_model: base
+  tts_engine: edge
+  tts_voice: it-IT-DiegoNeural
+  command_timeout_sec: 12
+  energy_threshold: 0.012
+  input_gain: 1.0
+  silence_seconds: 1.1
+  wake_poll_seconds: 1.6
+  tts_rate: 175
+  tts_volume: 1.0
+
+assistant:
+  name: Jarvis
+  confirm_destructive: false
+  max_history: 20
